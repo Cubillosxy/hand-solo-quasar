@@ -59,16 +59,12 @@ def distance_x_y(x_y, points):
         dy = i[1] - x_y[1]
         result += (dx**2 + dy**2)**0.5
 
-    return result
+    return {'key': x_y, 'value': result}
 
 
-
-def get_location(distances):
-    distance = None
+def get_intersection_points(distances):
     args_quantity = len(distances)
-    # we need at least 3 args
-
-
+    
     if args_quantity < 3:
         return None
     
@@ -81,19 +77,88 @@ def get_location(distances):
             if result is not None:
                 intersection_points += result
 
-    len_points = len(intersection_points) 
+    return intersection_points
 
-    if len_points < 6:
-        return distance
+def get_location(distances):
+    
+    intersection_points = get_intersection_points(distances)
+
+    if not intersection_points or len(intersection_points) < 6:
+        return None
 
     with Pool() as pool:
         result = pool.starmap(distance_x_y, [ (i, intersection_points) for i in intersection_points])
 
-    index = result.index(min(result))
+    point = min(result, key=lambda x: x['value'])
     
-    return intersection_points[index]
+    return point['key']
+
+
+def _merge_msg(m1, m2):
+    result = [m1[i].strip() or m2[i].strip() for i in range(len(m1))]
+
+def get_message(messages):
+    msg_len = len(messages)
+
+    base_msg = max(messages, key=len)
+    len_base = len(base_msg)
+
+
+    list_words = [i.strip() for i in base_msg if i]
+    output = list(base_msg)
+
+    _messages = list(messages).remove(base_msg)
 
 
 
+    dict_result = {}
+    count = 0
+    for i in range(0, msg_len - 1):
+        for j in range(i+1, msg_len):
+            _msg = messages[i]
+            _target = messages[j]
+            len_key = len(_msg)
+            
+            if len_key == len(_target):
+                if len_key in dict_result:
+                    _msg = dict_result[len_key]
+                merge = _merge_msg(_msg, _target)
+                dict_result[len_key] = merge
+                count += 1
+            
+            if count == msg_len -1:
+                break
+        if count == msg_len -1:
+            break
+    
+    # all messages has same length 
+    if count == msg_len -1:
+        return dict_result[len_base]
 
+
+    
+    for row in _messages:
+        target = row
+        if len(base_msg) != len(row):
+            
+
+
+    result = []
+    for j in range(len(base_msg)):
+        outs = []
+        for i in messages:
+            try:
+                if i[j].strip():
+                    outs.append(i[j])
+
+            except IndexError:
+                break
+
+        _aux = outs[0] if outs else ''
+        result.append(_aux)
+
+    if len(base_msg) != len(result):
+        return None
+
+    return result
 
