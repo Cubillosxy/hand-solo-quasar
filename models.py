@@ -8,11 +8,9 @@ class SatelliteBase(BaseModel):
   distance: float
   message: list
 
-class Satellite(BaseModel):
-    name: str
-    distance: float
-    message: list
 
+class Satellite(SatelliteBase):
+    name: str
 
 
 class SatellitesList(BaseModel):

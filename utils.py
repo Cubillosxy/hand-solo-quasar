@@ -1,6 +1,11 @@
 
 from multiprocessing import Pool
+import os
 
+TOP_SECRECT = '/topsecrect/'
+TOP_SECRECT_SPLIT = '/topsecret_split/'
+SECRECT_KEY = os.environ.get('SECRECT_KEY', 'test')
+BASE_URL = os.environ.get('SECRECT_KEY', 'http://127.0.0.1')
 
 class Satellites(object):
 

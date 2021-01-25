@@ -1,3 +1,5 @@
 fastapi==0.63.0
 uvicorn==0.13.3
 pytest==6.2.1
+pyjwt==2.0.1
+pytest-asyncio==0.14.0
