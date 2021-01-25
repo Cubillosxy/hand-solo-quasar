@@ -15,7 +15,7 @@ def test_not_enought_data():
     data = {
         "satellites": [s1.dict()]
     }
-    response = client.post("/topsecret", json=data)
+    response = client.post("/topsecret/", json=data)
     assert response.status_code == 404
     assert response.json() == {
         "error": Trilateration.ERROR_NOT_ENOUGH_DATA
@@ -28,7 +28,7 @@ def test_invalid_data():
     data = {
         "satellites": [s1.dict() for i in range(3)]
     }
-    response = client.post("/topsecret", json=data)
+    response = client.post("/topsecret/", json=data)
     assert response.status_code == 404
     assert response.json() == {
         "error": Trilateration.ERROR_INVALID_DATA_LENGHT
@@ -50,13 +50,33 @@ def test_unable_to_get_msg():
     data = {
         "satellites": satellites
     }
-    response = client.post("/topsecret", json=data)
+    response = client.post("/topsecret/", json=data)
     assert response.status_code == 404
     assert response.json() == {
         "error": Trilateration.ERROR_UNABLE_GET_MESSAGE
     }
 
 
+def test_unable_to_get_location():
+    satellites = [
+        {
+            'distance': Trilateration.distance_x_y(tx_location, [i['value']])['value'] - random.randint(300, 600),
+            'message': ['very', 'easy'],
+            'name': i['name']
+
+        } for i in Trilateration.get_satellites_list()
+    ]
+    data = {
+        "satellites": satellites
+    }
+    response = client.post("/topsecret/", json=data)
+
+    print('location', tx_location)
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "error": Trilateration.ERROR_UNABLE_GET_LOCATION
+    }
 
 def test_repeat_msg():
 
@@ -73,7 +93,7 @@ def test_repeat_msg():
     data = {
         "satellites": satellites
     }
-    response = client.post("/topsecret", json=data)
+    response = client.post("/topsecret/", json=data)
     assert response.status_code == 200
 
     # we know tha position is close to the real position
@@ -98,38 +118,68 @@ def test_decode_msg():
         ['', 'my', '', ''],
     ]
 
+    #offset message
     good_3 = ['my', 'app', 'ok']
-    mg3 = [
+    mgs3 = [
         ['', 'my', '', 'ok'],
         ['my', 'app', ''],
         ['', 'my', '', 'ok'],
     ]
 
-    satellites = [
-        {
-            'distance': Trilateration.distance_x_y(tx_location, [i['value']])['value'],
-            'name': i['name']
+    mgs4 = [
+        [ 'my', '', 'ok'],
+        ['my', 'app', '', ''],
+        [ 'my', '', 'ok'],
+    ]
 
-        } for i in Trilateration.get_satellites_list()
+    mgs5 = [
+        [ 'my', '', ''],
+        ['', 'app', ''],
+        [ '', '', 'ok'],
     ]
 
 
-    _custom = []
+    _custom1 = []
+    _custom2 = []
+    _custom3 = []
+    _custom4 = []
+    _custom4 = []
+    _custom5 = []
 
-    for i, j in enumerate(satellites):
-        _aux = dict(j)
-        _aux['message'] = mgs1[i]
-        _custom.append(_aux)
+    for i, j in enumerate(Trilateration.get_satellites_list()):
+        _aux = {
+            'distance': Trilateration.distance_x_y(tx_location, [j['value']])['value'],
+            'name': j['name'],
+            'message': mgs1[i]
+        }
 
+        _custom1.append(_aux)
+        _aux = dict(_aux)
+        _aux['message'] = mgs2[i]
+        _custom2.append(_aux)
+        _aux = dict(_aux)
+        _aux['message'] = mgs3[i]
+        _custom3.append(_aux)
+        _aux = dict(_aux)
+        _aux['message'] = mgs4[i]
+        _custom4.append(_aux)
+        _aux = dict(_aux)
+        _aux['message'] = mgs5[i]
+        _custom5.append(_aux)
 
+    list_cases = [_custom1, _custom2, _custom3, _custom4, _custom5]
+    list_response = [good_1, good_1, good_3, good_3, good_3]
 
-    data = {
-        "satellites": _custom
-    }
-    print('data', data)
-    response = client.post("/topsecret", json=data)
-    print(response.json())
-    assert response.status_code == 200
+    for i, j in enumerate(list_cases):
+        response = client.post("/topsecret/", json={"satellites": j})
+        assert response.status_code == 200
+
+        assert response.json() == {
+            'message' :' '.join(list_response[i]),
+            'position': {'x': float(xo), 'y': float(yo)}
+        }
+    
+
 
 
 

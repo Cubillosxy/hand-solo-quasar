@@ -18,9 +18,9 @@ class Satellites(object):
 
         return [KENOBI, SKYWALKER, SATO]
 
-    
-
-
+    @staticmethod
+    def get_satellites_names(satellites_list):
+        return { i['name']: i for i in satellites_list if i.get('name')}
 
 
 #assumptions
@@ -49,7 +49,7 @@ class Trilateration(Satellites):
         if len(self.input_data) < 3:
             return self.ERROR_NOT_ENOUGH_DATA
 
-        dict_satellites = { i['name']: i for i in self.input_data}
+        dict_satellites = self.get_satellites_names(self.input_data)
 
         _distances = []
         _messages = []
@@ -78,7 +78,7 @@ class Trilateration(Satellites):
         
 
     @staticmethod
-    def circle_intersection(circle1, circle2):
+    def circle_intersection(circle1: tuple, circle2: tuple):
         '''
         based on  https://gist.github.com/xaedes/974535e71009fa8f090e
         :param circle1:  tuple(x,y,radius)
@@ -109,7 +109,7 @@ class Trilateration(Satellites):
 
 
     @staticmethod
-    def distance_x_y(x_y, points):
+    def distance_x_y(x_y: tuple, points: list):
 
         result = 0
         
@@ -179,14 +179,14 @@ class Trilateration(Satellites):
     def _get_message(cls, messages):
 
         base_msg = max(messages, key=len)
-        _messages = list(messages).remove(base_msg)
 
         # all msg are equal
-        if not _messages:
+        if not messages:
             return base_msg
 
-        for row in _messages:
-            base_msg = cls._merge_msg(base_msg, row)
+        for row in messages:
+            if base_msg != row:
+                base_msg = cls._merge_msg(base_msg, row)
 
         return base_msg 
 

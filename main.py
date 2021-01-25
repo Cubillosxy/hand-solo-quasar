@@ -1,14 +1,21 @@
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Response, status# Depends
+#from fastapi.security import APIKeyCookie
 
 from models import (
-    SatellitesList, TxResponse
+    SatellitesList, 
+    TxResponse,
+   # SatelliteBase
 )
 from utils import Trilateration
 
 app = FastAPI()
 
 
-@app.post('/topsecret')
+
+#cookie_sec = APIKeyCookie(name="session")
+
+
+@app.post('/topsecret/')
 def topsecret(data: SatellitesList, response: Response):
     '''
     calculate position according 3 points (SATELITES) using trilateration method 
@@ -44,3 +51,15 @@ def topsecret(data: SatellitesList, response: Response):
     response = TxResponse(position=position, message=message)
 
     return response.dict()
+
+'''
+@app.post('/topsecret_split/{satellite_name}')
+async def topsecret_split(satellite_name: str, satellite_base: SatelliteBase):
+
+    return {'hola': 23}
+
+
+@app.get('/topsecret_split/')
+async def topsecret_split_get( response: Response):
+    return {'hola': 'get'}
+    '''
