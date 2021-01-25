@@ -1,0 +1,3 @@
+steps:
+- name: 'grc.io/cloud-biulders/docker'
+  args: ['build', '-t', 'grc.io/${PROJECT_ID}/${DK_IMAGE}', '.']
