@@ -5,6 +5,7 @@ from main import app
 from models import Satellite, TxResponse, SatelliteBase
 from utils import Trilateration
 from utils import TOP_SECRECT, TOP_SECRECT_SPLIT, BASE_URL
+import json
 import random
 
 
@@ -185,11 +186,61 @@ def test_decode_msg():
 
 
 
-def test_split():
+def test_split_bad_satellite():
     satellite_base = SatelliteBase(distance=2, message=['test', ])
     response = client.post(TOP_SECRECT_SPLIT + 'invalid', json=satellite_base.dict())
+    assert response.status_code == 404
+    assert response.json() == {"error": Trilateration.ERROR_INVALID_DATA}
+
+
+def test_split_1_satelliste():
+    satellite_base = SatelliteBase(distance=2, message=['test', ])
+
+    satellite = satellites_list[random.randint(0,2)]['name']
+
+    url = f'{TOP_SECRECT_SPLIT}{satellite}'
+    response = client.post(url, json=satellite_base.dict())
+    assert response.status_code == 201
+
+
+def test_split_2_satellites():
+    s1 =  SatelliteBase(distance=24, message=['test', ''])
+    satellites = {
+        satellites_list[random.randint(0,2)]['name']: s1.dict()
+    }
+    cookies = {'data': json.dumps(satellites)}
+
+
+    satellite_base = SatelliteBase(distance=2, message=['test', ''])
+
+    satellite = satellites_list[random.randint(0,2)]['name']
+
+    url = f'{TOP_SECRECT_SPLIT}{satellite}'
+    response = client.post(url, json=satellite_base.dict(), cookies=cookies)
+    assert response.status_code == 201
+
+
+def test_split_complete_information():
+    good_msg = ['test', 'my', 'app', 'ok']
+    satellites = {
+        i['name'] : {
+            'distance': Trilateration.distance_x_y(tx_location, [i['value']])['value'],
+            'message': good_msg,
+            #'name': i['name']
+
+        } for i in satellites_list
+    }
+
+
+    response = client.get(TOP_SECRECT_SPLIT, cookies={'data': json.dumps(satellites)})
+
     assert response.status_code == 200
-    assert response.json() == {"message": "Tomato"}
+    assert response.json() == {
+        'message' :' '.join(good_msg),
+        'position': {'x': float(xo), 'y': float(yo)}
+    }
+
+
 
 
 

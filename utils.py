@@ -6,6 +6,7 @@ TOP_SECRECT = '/topsecrect/'
 TOP_SECRECT_SPLIT = '/topsecret_split/'
 SECRECT_KEY = os.environ.get('SECRECT_KEY', 'test')
 BASE_URL = os.environ.get('SECRECT_KEY', 'http://127.0.0.1')
+MIN_DATA_LENGTH = 3
 
 class Satellites(object):
 
@@ -28,6 +29,10 @@ class Satellites(object):
         return { i['name']: i for i in satellites_list if i.get('name')}
 
 
+    def _get_satellites_names(self):
+        return self.get_satellites_names(self.satellites_list)
+
+
 #assumptions
 #center the plane over one point
 #we assume that we are receiving the positions sorted according the SATELLITES
@@ -43,18 +48,22 @@ class Trilateration(Satellites):
     ERROR_INVALID_DATA_LENGHT = 'Invalid data lenght'
     ERROR_UNABLE_GET_MESSAGE = 'Unable to resolve message'
     ERROR_UNABLE_GET_LOCATION = 'Unable to resolve location'
+    ERROR_CORRUPTED_DATA = 'Corrupt data '
 
     def __init__(self, input_data):
         self.input_data = input_data
         super().__init__()
 
 
-    def set_data(self):
+    def set_data(self, standarized=False):
 
-        if len(self.input_data) < 3:
-            return self.ERROR_NOT_ENOUGH_DATA
+        dict_satellites = self.input_data
 
-        dict_satellites = self.get_satellites_names(self.input_data)
+        if not standarized:
+            if len(self.input_data) < MIN_DATA_LENGTH:
+                return self.ERROR_NOT_ENOUGH_DATA
+
+            dict_satellites = self.get_satellites_names(self.input_data)
 
         _distances = []
         _messages = []
@@ -69,17 +78,37 @@ class Trilateration(Satellites):
         self.messages = _messages
         
 
-    def prepare(self):
-        if not isinstance(self.input_data, list):
+    def prepare(self, standarized=False):
+        if not standarized and not isinstance(self.input_data, list):
             return self.ERROR_INVALID_DATA
 
-        data_error = self.set_data()
+        data_error = self.set_data(standarized=standarized)
+
+
         if data_error:
             return data_error
 
-        if len(self.distances) < 3:
+        if len(self.distances) < MIN_DATA_LENGTH:
             return self.ERROR_INVALID_DATA_LENGHT
 
+
+    def prepare_standarized(self):
+
+        if not isinstance(self.input_data, dict):
+            return self.ERROR_INVALID_DATA
+
+
+        result = { 
+            key: {
+                **item,
+                'name': key
+            }
+            for key, item in self.input_data.items()
+        }
+
+        self.input_data = result
+
+        return self.prepare(standarized=True)
         
 
     @staticmethod
@@ -147,7 +176,7 @@ class Trilateration(Satellites):
         
         intersection_points = self.get_intersection_points(distances)
 
-        if not intersection_points or len(intersection_points) < 6:
+        if not intersection_points or len(intersection_points) < MIN_DATA_LENGTH * 2:
             return None
 
         with Pool(processes=6) as pool:
