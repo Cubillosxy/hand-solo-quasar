@@ -62,9 +62,6 @@ class Trilateration(Satellites):
 
         self.distances = _distances
         self.messages = _messages
-
-        print('distances &&&&&&& ', _distances)
-        print('msg', _messages)
         
 
     def prepare(self):
@@ -151,9 +148,11 @@ class Trilateration(Satellites):
         with Pool(processes=6) as pool:
             result = pool.starmap(self.distance_x_y, [ (i, intersection_points) for i in intersection_points])
 
-        point = min(result, key=lambda x: x['value'])
-        
-        return point['key']
+        point = min(result, key=lambda x: x['value'])['key']
+        # round response acceptin error +- 0.5
+
+        return round(point[0], 1), round(point[1], 1)
+
 
     def get_location(self):
         return self._get_location(self.distances)
@@ -176,7 +175,8 @@ class Trilateration(Satellites):
         else: # equal
             return [str(base_message[i]).strip() or str(m2[i]).strip() for i in range(m1_len)]
 
-    def _get_message(self, messages):
+    @classmethod
+    def _get_message(cls, messages):
 
         base_msg = max(messages, key=len)
         _messages = list(messages).remove(base_msg)
@@ -186,7 +186,7 @@ class Trilateration(Satellites):
             return base_msg
 
         for row in _messages:
-            base_msg = self._merge_msg(base_msg, row)
+            base_msg = cls._merge_msg(base_msg, row)
 
         return base_msg 
 
