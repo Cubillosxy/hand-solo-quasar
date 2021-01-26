@@ -200,7 +200,7 @@ class Trilateration(Satellites):
         if m1_len > m2_len:
             for w in m2:
                 # find offset 
-                if w in list_words:
+                if str(w) in list_words:
                     index_m2 = m2.index(w)
                     index_m1 = base_message.index(w)
                     index_diff = index_m1 - index_m2
@@ -214,15 +214,11 @@ class Trilateration(Satellites):
 
         base_msg = max(messages, key=len)
 
-        # all msg are equal
-        if not messages:
-            return base_msg
-
         for row in messages:
             if base_msg != row:
                 base_msg = cls._merge_msg(base_msg, row)
 
-        return base_msg 
+        return [str(i) for i in base_msg] 
 
     def get_message(self):
         msg = self._get_message(self.messages)
