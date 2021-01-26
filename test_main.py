@@ -46,7 +46,7 @@ def test_unable_to_get_msg():
     satellites = [
         {
             'distance': Trilateration.distance_x_y(tx_location, [i['value']])['value'],
-            'message': ['', 'imposible', '', ''],
+            'message': ['', 'meli', '', ''],
             'name': i['name']
 
         } for i in satellites_list
@@ -193,7 +193,7 @@ def test_split_bad_satellite():
     assert response.json() == {"error": Trilateration.ERROR_INVALID_DATA}
 
 
-def test_split_1_satelliste():
+def test_split_1_satellite():
     satellite_base = SatelliteBase(distance=2, message=['test', ])
 
     satellite = satellites_list[random.randint(0,2)]['name']

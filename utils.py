@@ -5,7 +5,7 @@ import os
 TOP_SECRECT = '/topsecrect/'
 TOP_SECRECT_SPLIT = '/topsecret_split/'
 SECRECT_KEY = os.environ.get('SECRECT_KEY', 'test')
-BASE_URL = os.environ.get('SECRECT_KEY', 'http://127.0.0.1')
+BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1')
 MIN_DATA_LENGTH = 3
 
 class Satellites(object):
@@ -34,7 +34,6 @@ class Satellites(object):
 
 
 #assumptions
-#center the plane over one point
 #we assume that we are receiving the positions sorted according the SATELLITES
 
 
@@ -150,7 +149,8 @@ class Trilateration(Satellites):
         for i in points:
             dx = i[0] - x_y[0]
             dy = i[1] - x_y[1]
-            result += (dx**2 + dy**2)**0.5
+            if dx != 0 or dy != 0:
+                result += (dx**2 + dy**2)**0.5
 
         return {'key': x_y, 'value': result}
 
