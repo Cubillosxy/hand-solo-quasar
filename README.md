@@ -1,16 +1,15 @@
 # hand-solo-quasar
 Trilateration 
 
-this code use trilateration for get tx location using 3 (or more) reference points and lineal distance to each point from tx '.
+this code uses trilateration for getting tx location using 3 (or more) reference points and the lineal distance of each point from tx '.
 
 ![trilateriation](https://www.alanzucconi.com/wp-content/uploads/2017/03/Trilateration3.png)
 
-the aim is get the intersection points betweem the circles with R = Distance
-after we need to calculate the distances for each intersection points to others, and the first minumun distance is the converge point -tx location-, 
+the aim is get the intersection points between the circles with R = Distance
+after we need to calculate the distances for each intersection point to others, and the first minimum distance is the convergence point -tx location-, 
 this method is called [Geometric Median](https://en.wikipedia.org/wiki/Geometric_median)
 
-Note: in the real life the system using more complex for solve location like GPS, other systems using [multiration](https://www.wikiwand.com/en/True-range_multilateration) for get the location with the minumun error. 
-
+Note: in the real life the system using more complex for solving location like GPS, other systems using [multiration](https://www.wikiwand.com/en/True-range_multilateration) for getting the location with the minimum error. 
 *real time app [here](https://quasar-iwmtxlug5a-uc.a.run.app)*
 
 ## Getting started 

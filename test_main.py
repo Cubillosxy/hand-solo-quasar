@@ -143,6 +143,13 @@ def test_decode_msg():
         [ '', '', 'ok'],
     ]
 
+    good_msg_number = ['3', '1', '4']
+    mgs6 = [
+        [3, '', 4],
+        [3, '1', ''],
+        [ '', '', 4],
+    ]
+
 
     _custom1 = []
     _custom2 = []
@@ -150,6 +157,8 @@ def test_decode_msg():
     _custom4 = []
     _custom4 = []
     _custom5 = []
+    _custom6 = []
+
 
     for i, j in enumerate(satellites_list):
         _aux = {
@@ -171,9 +180,13 @@ def test_decode_msg():
         _aux = dict(_aux)
         _aux['message'] = mgs5[i]
         _custom5.append(_aux)
+        _aux = dict(_aux)
+        _aux['message'] = mgs6[i]
+        _custom6.append(_aux)
 
-    list_cases = [_custom1, _custom2, _custom3, _custom4, _custom5]
-    list_response = [good_1, good_1, good_3, good_3, good_3]
+
+    list_cases = [_custom1, _custom2, _custom3, _custom4, _custom5, _custom6]
+    list_response = [good_1, good_1, good_3, good_3, good_3, good_msg_number]
 
     for i, j in enumerate(list_cases):
         response = client.post(TOP_SECRECT, json={"satellites": j})
